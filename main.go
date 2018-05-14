@@ -8,9 +8,9 @@ import (
 )
 
 func main() {
+	test := mat.NewVecDense(3, []float64{1, 2, 3})
 
-	zero := mat.NewDense(3, 5, nil)
-
-	fmt.Println(zero)
+	calc := BiasCorrection(test, 5.0)
+	fmt.Println(calc)
 	fmt.Println(machinelearning.Relu(3))
 }

@@ -2,21 +2,25 @@ package machinelearning
 
 import (
 	"math"
+
+	"gonum.org/v1/gonum/mat"
 )
 
 // BiasCorrection ...
-func BiasCorrection(value float64, beta float64) float64 {
-	return value / (1 - math.Pow(beta, 2))
+func BiasCorrection(value *mat.VecDense, beta float64) *mat.VecDense {
+	result := mat.NewVecDense(value.Len(), nil)
+	result.ScaleVec(1/(1-math.Pow(beta, 2)), value)
+	return result
 }
 
 // LinearWeightedAverage ...
 func LinearWeightedAverage() {
-	BiasCorrection()
+	//BiasCorrection()
 }
 
 // GradientDescentWithMomentum ...
 func GradientDescentWithMomentum() {
-	BiasCorrection()
+	//BiasCorrection()
 }
 
 // GradientChecking ...
@@ -94,13 +98,13 @@ func numericalApprox() {
 
 // RMSdrop ...
 func RMSdrop() {
-	LinearWeightedAverage()
-	GradientDescentWithMomentum()
+	//LinearWeightedAverage()
+	//GradientDescentWithMomentum()
 }
 
 // ADAMOptimization is a function
 func ADAMOptimization(parameters map[string]float64) (map[string]float64, map[string]float64) {
-	BiasCorrection()
+	//BiasCorrection()
 	/*
 	   def initialize_adam(parameters) :
 	       """
