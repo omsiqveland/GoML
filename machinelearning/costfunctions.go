@@ -1,10 +1,50 @@
 package machinelearning
 
-func cost_function() {
+import (
+	"math"
 
+	"gonum.org/v1/gonum/mat"
+)
+
+// CostFunctionBinaryLogistic ...
+func CostFunctionBinaryLogistic(An *mat.VecDense, Y *mat.VecDense) float64 {
+	/*
+		"""
+			Implement the cost function
+
+			Arguments:
+			a3 -- post-activation, output of forward propagation
+			Y -- "true" labels vector, same shape as a3
+
+			Returns:
+			cost - value of the cost function
+			"""
+			m = Y.shape[1]
+
+			logprobs = np.multiply(-np.log(a3),Y) + np.multiply(-np.log(1 - a3), 1 - Y)
+			cost = 1./m * np.nansum(logprobs)
+
+			return cost
+	*/
+
+	if An.Len() != Y.Len() {
+		panic("An.Len() != Y.Len()")
+	}
+
+	m := Y.Len()
+
+	cost := 0.0
+
+	for i := 0; i < An.Len(); i++ {
+		cost += ((math.Log(An.At(i, 0)) * Y.At(i, 0)) + (math.Log(1-An.At(i, 0)) * (1 - Y.At(i, 0)))) / float64(m)
+	}
+
+	return cost
 }
 
-func costWithL2Regularization() {
+// CostWithL2Regularization ...
+func CostWithL2Regularization(An *mat.VecDense, Y *mat.VecDense, parameters map[string]float64, lambda float64) float64 {
+
 	/*
 	   def compute_cost_with_regularization(A3, Y, parameters, lambd):
 	       """
