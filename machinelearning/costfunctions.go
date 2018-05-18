@@ -1,13 +1,15 @@
 package machinelearning
 
 import (
+	"fmt"
 	"math"
+	"strings"
 
 	"gonum.org/v1/gonum/mat"
 )
 
-// CostFunctionBinaryLogistic ...
-func CostFunctionBinaryLogistic(An *mat.VecDense, Y *mat.VecDense) float64 {
+// CostBinaryLogistic Tested OK
+func CostBinaryLogistic(An *mat.VecDense, Y *mat.VecDense) float64 {
 	/*
 		"""
 			Implement the cost function
@@ -34,43 +36,81 @@ func CostFunctionBinaryLogistic(An *mat.VecDense, Y *mat.VecDense) float64 {
 	m := Y.Len()
 
 	cost := 0.0
-
-	for i := 0; i < An.Len(); i++ {
-		cost += ((math.Log(An.At(i, 0)) * Y.At(i, 0)) + (math.Log(1-An.At(i, 0)) * (1 - Y.At(i, 0)))) / float64(m)
+	for i := 0; i < m; i++ {
+		cost += ((-math.Log(An.At(i, 0)) * Y.At(i, 0)) + (-math.Log(1-An.At(i, 0)) * (1 - Y.At(i, 0)))) / float64(m)
 	}
+
+	fmt.Println("Cost: ")
+	fmt.Println(cost)
 
 	return cost
 }
 
-// CostWithL2Regularization ...
-func CostWithL2Regularization(An *mat.VecDense, Y *mat.VecDense, parameters map[string]float64, lambda float64) float64 {
+// CostBinaryLogisticWithL2Regularization Testresult: 0.18584276807458602 should be 0.183984340402
+func CostBinaryLogisticWithL2Regularization(An *mat.VecDense, Y *mat.VecDense, parameters map[string]*mat.Dense, lambda float64) float64 {
 
-	/*
-	   def compute_cost_with_regularization(A3, Y, parameters, lambd):
-	       """
-	       Implement the cost function with L2 regularization. See formula (2) above.
+	m := Y.Len()
+	var WArr map[string]*mat.Dense
+	var bArr map[string]*mat.Dense
+	WArr = make(map[string]*mat.Dense)
+	bArr = make(map[string]*mat.Dense)
 
-	       Arguments:
-	       A3 -- post-activation, output of forward propagation, of shape (output size, number of examples)
-	       Y -- "true" labels vector, of shape (output size, number of examples)
-	       parameters -- python dictionary containing parameters of the model
+	for key, val := range parameters {
+		if strings.HasPrefix(key, "W") {
+			WArr[key] = val
+		} else if strings.HasPrefix(key, "b") {
+			bArr[key] = val
+		}
+	}
 
-	       Returns:
-	       cost - value of the regularized loss function (formula (2))
-	       """
-	       m = Y.shape[1]
-	       W1 = parameters["W1"]
-	       W2 = parameters["W2"]
-	       W3 = parameters["W3"]
+	crossEntropyCost := CostBinaryLogistic(An, Y)
 
-	       cross_entropy_cost = compute_cost(A3, Y) # This gives you the cross-entropy part of the cost
+	costL2Regularization := 0.0
 
-	       ### START CODE HERE ### (approx. 1 line)
-	       L2_regularization_cost = (np.sum(np.square(W1))+np.sum(np.square(W2))+np.sum(np.square(W3)))*0.5*lambd/m
-	       ### END CODER HERE ###
+	for i := 0; i < m; i++ {
+		for _, val := range WArr {
+			WClone := mat.DenseCopyOf(val)
+			WClone.MulElem(WClone, val)
+			rows, cols := WClone.Dims()
+			matSum := 0.0
+			for WRow := 0; WRow < rows; WRow++ {
+				for WCol := 0; WCol < cols; WCol++ {
+					matSum += WClone.At(WRow, WCol)
+				}
+			}
+			costL2Regularization += matSum
+		}
+		costL2Regularization = costL2Regularization * 0.5 * lambda / float64(m)
 
-	       cost = cross_entropy_cost + L2_regularization_cost
+	}
+	fmt.Println("Regularization cost: ")
+	fmt.Println(costL2Regularization)
+	return crossEntropyCost + costL2Regularization
+	/*	   def compute_cost_with_regularization(A3, Y, parameters, lambd):
+		       """
+		       Implement the cost function with L2 regularization. See formula (2) above.
 
-	   	return cost
+		       Arguments:
+		       A3 -- post-activation, output of forward propagation, of shape (output size, number of examples)
+		       Y -- "true" labels vector, of shape (output size, number of examples)
+		       parameters -- python dictionary containing parameters of the model
+
+		       Returns:
+		       cost - value of the regularized loss function (formula (2))
+		       """
+		       m = Y.shape[1]
+		       W1 = parameters["W1"]
+		       W2 = parameters["W2"]
+		       W3 = parameters["W3"]
+
+		       cross_entropy_cost = compute_cost(A3, Y) # This gives you the cross-entropy part of the cost
+
+		       ### START CODE HERE ### (approx. 1 line)
+		       L2_regularization_cost = (np.sum(np.square(W1))+np.sum(np.square(W2))+np.sum(np.square(W3)))*0.5*lambd/m
+		       ### END CODER HERE ###
+
+		       cost = cross_entropy_cost + L2_regularization_cost
+
+		   	return cost
 	*/
 }

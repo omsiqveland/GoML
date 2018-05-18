@@ -206,7 +206,9 @@ func ADAMOptimization(parameters map[string]float64) (map[string]float64, map[st
 
 	       return parameters, v, s
 	*/
-
+	var result map[string]float64
+	result = make(map[string]float64)
+	return result, result
 }
 
 func batch_normalization() {
