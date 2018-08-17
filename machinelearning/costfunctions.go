@@ -58,31 +58,32 @@ func CostBinaryLogisticWithL2Regularization(An *mat.VecDense, Y *mat.VecDense, p
 	for key, val := range parameters {
 		if strings.HasPrefix(key, "W") {
 			WArr[key] = val
+
 		} else if strings.HasPrefix(key, "b") {
 			bArr[key] = val
 		}
 	}
-
+	fmt.Printf("Length = %v\n\n", len(WArr))
 	crossEntropyCost := CostBinaryLogistic(An, Y)
 
 	costL2Regularization := 0.0
 
-	for i := 0; i < m; i++ {
-		for _, val := range WArr {
-			WClone := mat.DenseCopyOf(val)
-			WClone.MulElem(WClone, val)
-			rows, cols := WClone.Dims()
-			matSum := 0.0
-			for WRow := 0; WRow < rows; WRow++ {
-				for WCol := 0; WCol < cols; WCol++ {
-					matSum += WClone.At(WRow, WCol)
-				}
+	for _, val := range WArr {
+		WClone := mat.DenseCopyOf(val)
+		WClone.MulElem(WClone, val)
+		fc := mat.Formatted(WClone, mat.Prefix("    "), mat.Squeeze())
+		fmt.Printf("W = %v\n\n", fc)
+		rows, cols := WClone.Dims()
+		matSum := 0.0
+		for WRow := 0; WRow < rows; WRow++ {
+			for WCol := 0; WCol < cols; WCol++ {
+				matSum += WClone.At(WRow, WCol)
 			}
-			costL2Regularization += matSum
 		}
-		costL2Regularization = costL2Regularization * 0.5 * lambda / float64(m)
-
+		costL2Regularization += matSum
 	}
+	costL2Regularization = costL2Regularization * 0.5 * lambda / float64(m)
+
 	fmt.Println("Regularization cost: ")
 	fmt.Println(costL2Regularization)
 	return crossEntropyCost + costL2Regularization
